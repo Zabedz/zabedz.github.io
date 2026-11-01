@@ -10,7 +10,7 @@
 	},
 	"agentic-ds/replan-rejected": {
 		"width": 800,
-		"height": 541,
+		"height": 540,
 		"widths": [
 			480,
 			800
@@ -65,7 +65,7 @@
 	},
 	"chess-editor/settings-dark": {
 		"width": 800,
-		"height": 1377,
+		"height": 1378,
 		"widths": [
 			480,
 			800
@@ -73,7 +73,7 @@
 	},
 	"chess-editor/settings": {
 		"width": 800,
-		"height": 1377,
+		"height": 1378,
 		"widths": [
 			480,
 			800
@@ -81,7 +81,7 @@
 	},
 	"dissertation/pipeline": {
 		"width": 1600,
-		"height": 337,
+		"height": 336,
 		"widths": [
 			480,
 			800,
@@ -140,6 +140,24 @@
 			1600
 		]
 	},
+	"glosward/answer-path": {
+		"width": 1600,
+		"height": 604,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
+	"glosward/build-pipeline": {
+		"width": 1600,
+		"height": 626,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
 	"pv-bess/architecture": {
 		"width": 1600,
 		"height": 862,
@@ -169,7 +187,7 @@
 	},
 	"tombstone/rga-tree-dark": {
 		"width": 1600,
-		"height": 855,
+		"height": 854,
 		"widths": [
 			480,
 			800,
@@ -178,7 +196,7 @@
 	},
 	"tombstone/rga-tree": {
 		"width": 1600,
-		"height": 855,
+		"height": 854,
 		"widths": [
 			480,
 			800,
@@ -187,7 +205,7 @@
 	},
 	"tombstone/visualiser-merge": {
 		"width": 480,
-		"height": 185,
+		"height": 184,
 		"widths": [
 			480
 		]

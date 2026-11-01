@@ -1,0 +1,324 @@
+/*
+ * Scroll-linked motion for the whole page. Keyframes live here, unscoped: Svelte renames a
+ * `-global-` keyframe but not the `animation` that uses it. Base styles are the final state, so
+ * every keyframe defines only `from` (or only `to` for exits) and removing a rule leaves content
+ * in place.
+ */
+
+@keyframes rise {
+	from {
+		opacity: 0;
+		translate: 0 1.5rem;
+	}
+}
+
+@keyframes rise-word {
+	from {
+		translate: 0 110%;
+	}
+}
+
+@keyframes settle {
+	from {
+		opacity: 0;
+		scale: 0.9;
+	}
+}
+
+@keyframes recede {
+	to {
+		opacity: 0.15;
+		scale: 0.96;
+	}
+}
+
+@keyframes grow-x {
+	from {
+		scale: 0 1;
+	}
+}
+
+@keyframes wipe {
+	from {
+		clip-path: inset(0 100% 0 0);
+	}
+}
+
+@keyframes pop {
+	from {
+		opacity: 0;
+		scale: 0.2;
+	}
+}
+
+@keyframes light {
+	from {
+		opacity: 0.2;
+		translate: -0.75rem 0;
+	}
+}
+
+@supports (animation-timeline: view()) and (animation-range: 0% 100%) {
+	@media (prefers-reduced-motion: no-preference) {
+		/* Every width: blocks rise as they enter the viewport. */
+		.about .body > *,
+		.opener p,
+		.project .intro > *,
+		.project .visual,
+		.project .prose,
+		.project .facts,
+		.project .table,
+		.project .gallery > * {
+			animation: rise linear both;
+			animation-timeline: view();
+			animation-range: entry 0% entry 90%;
+		}
+
+		.about .body > :nth-child(2),
+		.project .facts {
+			animation-range: entry 10% cover 30%;
+		}
+
+		.about .body > :nth-child(3) {
+			animation-range: entry 20% cover 35%;
+		}
+
+		/* Headings: each word slides up out of a mask. */
+		.words .w > span {
+			display: inline-block;
+			animation: rise-word linear both;
+			animation-timeline: view();
+			animation-range: entry 30% cover 30%;
+		}
+
+		.words .w:nth-child(2) > span {
+			animation-range: entry 40% cover 34%;
+		}
+
+		.words .w:nth-child(3) > span {
+			animation-range: entry 50% cover 38%;
+		}
+
+		.words .w:nth-child(n + 4) > span {
+			animation-range: entry 60% cover 42%;
+		}
+
+		/* Charts and step lists play against their own figure. */
+		.chart,
+		.steps {
+			view-timeline: --figure block;
+		}
+
+		.bars .mark {
+			transform-box: fill-box;
+			transform-origin: left center;
+			animation: grow-x linear both;
+			animation-timeline: --figure;
+			animation-range: entry 50% cover 50%;
+		}
+
+		.bars .mark[data-neg] {
+			transform-origin: right center;
+		}
+
+		.lines .panel svg {
+			animation: wipe linear both;
+			animation-timeline: --figure;
+			animation-range: entry 40% cover 50%;
+		}
+
+		.scatter .mark {
+			transform-box: fill-box;
+			transform-origin: center;
+			animation: pop linear both;
+			animation-timeline: --figure;
+			animation-range: entry 40% cover 40%;
+		}
+
+		.scatter .mark:nth-of-type(3n + 1) {
+			animation-range: entry 50% cover 45%;
+		}
+
+		.scatter .mark:nth-of-type(3n + 2) {
+			animation-range: entry 60% cover 50%;
+		}
+
+		.step {
+			animation: light linear both;
+			animation-timeline: --figure;
+			animation-range: entry 40% cover 40%;
+		}
+
+		.step:nth-child(2) {
+			animation-range: entry 50% cover 43%;
+		}
+
+		.step:nth-child(3) {
+			animation-range: entry 60% cover 46%;
+		}
+
+		.step:nth-child(4) {
+			animation-range: entry 70% cover 49%;
+		}
+
+		.step:nth-child(5) {
+			animation-range: entry 80% cover 52%;
+		}
+
+		.step:nth-child(n + 6) {
+			animation-range: entry 90% cover 55%;
+		}
+
+		/*
+		 * Wide and tall screens: featured projects pin. The stage sticks below the nav while its
+		 * 200svh track scrolls past; its parts play over the first 70% of the pin, then the stage
+		 * recedes as the next project arrives. The stage grows with its content and holds nothing
+		 * focusable (chart tables render below it).
+		 */
+		@media (min-width: 64rem) and (min-height: 40rem) {
+			.project.featured {
+				padding-block-start: 0;
+			}
+
+			.featured .track {
+				block-size: 200svh;
+				view-timeline: --scene block;
+			}
+
+			.featured .stage {
+				position: sticky;
+				inset-block-start: var(--nav-h);
+				min-block-size: calc(100svh - var(--nav-h));
+				overflow-x: clip;
+				padding-block: var(--space-4);
+				animation: recede linear both;
+				animation-timeline: --scene;
+				animation-range: exit 0% exit 60%;
+			}
+
+			/* Laptop heights: tighter padding, a height-capped title and shorter line panels keep
+			 * the stage on screen. */
+			@media (max-height: 50rem) {
+				.featured .stage {
+					padding-block: var(--space-1);
+				}
+
+				.featured .intro h3 {
+					font-size: min(var(--step-3), 6.5svh);
+				}
+
+				.featured .lines .panel svg {
+					block-size: 3.5rem;
+				}
+			}
+
+			.featured .intro > * {
+				animation-timeline: --scene;
+				animation-range: entry 40% contain 5%;
+			}
+
+			.featured .intro > :nth-child(2) {
+				animation-range: entry 50% contain 8%;
+			}
+
+			.featured .intro > :nth-child(3) {
+				animation-range: entry 60% contain 11%;
+			}
+
+			.featured .intro > :nth-child(n + 4) {
+				animation-range: contain 0% contain 16%;
+			}
+
+			.featured .intro .stat {
+				animation: rise linear both;
+				animation-timeline: --scene;
+				animation-range: contain 8% contain 24%;
+			}
+
+			.featured .intro .stat:nth-child(2) {
+				animation-range: contain 12% contain 28%;
+			}
+
+			.featured .intro .stat:nth-child(3) {
+				animation-range: contain 16% contain 32%;
+			}
+
+			.featured .intro .stat:nth-child(4) {
+				animation-range: contain 20% contain 36%;
+			}
+
+			.featured .visual {
+				animation: settle linear both;
+				animation-timeline: --scene;
+				animation-range: entry 30% contain 15%;
+			}
+
+			.featured .bars .mark,
+			.featured .lines .panel svg,
+			.featured .scatter .mark,
+			.featured .step {
+				animation-timeline: --scene;
+			}
+
+			.featured .bars .mark {
+				animation-range: contain 15% contain 45%;
+			}
+
+			.featured .lines .panel svg {
+				animation-range: contain 15% contain 55%;
+			}
+
+			.featured .scatter .mark {
+				animation-range: contain 10% contain 35%;
+			}
+
+			.featured .scatter .mark:nth-of-type(3n + 1) {
+				animation-range: contain 18% contain 45%;
+			}
+
+			.featured .scatter .mark:nth-of-type(3n + 2) {
+				animation-range: contain 26% contain 55%;
+			}
+
+			.featured .step {
+				animation-range: contain 10% contain 20%;
+			}
+
+			.featured .step:nth-child(2) {
+				animation-range: contain 18% contain 28%;
+			}
+
+			.featured .step:nth-child(3) {
+				animation-range: contain 26% contain 36%;
+			}
+
+			.featured .step:nth-child(4) {
+				animation-range: contain 34% contain 44%;
+			}
+
+			.featured .step:nth-child(5) {
+				animation-range: contain 42% contain 52%;
+			}
+
+			.featured .step:nth-child(n + 6) {
+				animation-range: contain 50% contain 60%;
+			}
+		}
+	}
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.data::details-content {
+		opacity: 0;
+		translate: 0 -0.25rem;
+		transition:
+			opacity var(--dur) var(--ease-out),
+			translate var(--dur) var(--ease-out),
+			content-visibility var(--dur) allow-discrete;
+	}
+
+	.data[open]::details-content {
+		opacity: 1;
+		translate: 0 0;
+	}
+}

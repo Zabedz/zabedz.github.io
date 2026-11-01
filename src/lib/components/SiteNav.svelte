@@ -32,6 +32,7 @@
 			{/each}
 		</ul>
 	</nav>
+	<span class="progress" aria-hidden="true"></span>
 </header>
 
 <style>
@@ -41,7 +42,7 @@
 		z-index: 10;
 		block-size: var(--nav-h);
 		padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
-		background: color-mix(in srgb, var(--paper) 86%, transparent);
+		background: color-mix(in srgb, var(--paper) 94%, transparent);
 		backdrop-filter: blur(12px) saturate(1.4);
 		border-block-end: 1px solid var(--rule);
 		view-transition-name: site-nav;
@@ -55,14 +56,16 @@
 	}
 
 	a {
+		position: relative;
 		color: var(--ink-2);
 		text-decoration: none;
+		transition: color var(--dur-fast) var(--ease-out);
 		font-size: var(--step--1);
 		display: inline-flex;
 		align-items: center;
 		min-block-size: 2.75rem;
 		white-space: nowrap;
-		padding-inline: 0.375rem;
+		padding-inline: 0.25rem;
 	}
 
 	/* The scrolling list clips anything drawn outside it. */
@@ -91,14 +94,78 @@
 		justify-content: space-between;
 	}
 
+	ul a::after {
+		content: '';
+		position: absolute;
+		inset-inline: 0.25rem;
+		inset-block-end: 0.375rem;
+		block-size: 2px;
+		background: var(--accent);
+		scale: 0 1;
+		transform-origin: left center;
+		transition: scale var(--dur) var(--ease-spring);
+	}
+
 	[aria-current='true'] {
 		color: var(--ink);
-		box-shadow: inset 0 -2px 0 var(--accent);
+	}
+
+	[aria-current='true']::after {
+		scale: 1 1;
 	}
 
 	@media (hover: hover) {
 		a:hover {
 			color: var(--ink);
+		}
+
+		ul a:hover::after {
+			scale: 1 1;
+		}
+	}
+
+	/* Page progress along the bottom edge; hidden where scroll timelines are missing. */
+	.progress {
+		position: absolute;
+		inset: auto 0 -1px;
+		block-size: 2px;
+		background: var(--accent);
+		transform-origin: left center;
+		scale: 0 1;
+	}
+
+	@supports (animation-timeline: scroll()) {
+		@media (prefers-reduced-motion: no-preference) {
+			.progress {
+				animation: fill linear both;
+				animation-timeline: scroll(root);
+			}
+		}
+	}
+
+	/* Fades the end edge while more links sit offscreen. The timeline is inactive, so no
+	 * fade, when the list fits. */
+	@supports (animation-timeline: scroll()) {
+		ul {
+			animation: edge linear both;
+			animation-timeline: scroll(self inline);
+		}
+	}
+
+	@keyframes edge {
+		from,
+		95% {
+			mask-image: linear-gradient(to left, transparent, #000 2.5rem);
+		}
+
+		to {
+			mask-image: none;
+		}
+	}
+
+	@keyframes fill {
+		to {
+			scale: 1 1;
 		}
 	}
 

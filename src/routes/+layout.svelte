@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '#lib/styles/tokens.css';
 	import '#lib/styles/base.css';
+	import '#lib/styles/motion.css';
 	import { onMount } from 'svelte';
 	import { asset } from '$app/paths';
 	import site from '#lib/content/site.ts';

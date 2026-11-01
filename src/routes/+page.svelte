@@ -5,10 +5,13 @@
 	import About from '#lib/sections/About.svelte';
 	import Chapter from '#lib/sections/Chapter.svelte';
 	import Hero from '#lib/sections/Hero.svelte';
+	import { projects } from '#lib/content/projects/index.ts';
 
+	// Chapter renders nothing without a project, so its nav link would point nowhere.
+	const shown = chapters.filter((c) => c.projects.some((p) => projects[p.slug]));
 	const sections = [
-		...chapters.map(({ id, label }) => ({ id, label })),
-		{ id: 'about', label: 'About' }
+		{ id: 'about', label: 'About' },
+		...shown.map(({ id, label }) => ({ id, label }))
 	];
 </script>
 
@@ -16,10 +19,10 @@
 <SiteNav name={site.name} {sections} unlisted={['top']} />
 <main id="main">
 	<Hero {site} />
-	{#each chapters as chapter (chapter.id)}
+	<About {site} />
+	{#each shown as chapter (chapter.id)}
 		<Chapter {chapter} />
 	{/each}
-	<About {site} />
 </main>
 <footer class="wrap">
 	<p>

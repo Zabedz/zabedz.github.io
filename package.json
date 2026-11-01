@@ -17,6 +17,7 @@
 		"format": "prettier --write src scripts tests .github *.ts *.js *.json *.yaml",
 		"test": "vitest --run",
 		"test:e2e": "playwright test",
+		"check:dist": "node scripts/check-dist.ts build",
 		"fetch:projects": "node scripts/fetch-projects.ts",
 		"images": "node scripts/build-images.ts"
 	},

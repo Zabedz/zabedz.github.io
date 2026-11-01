@@ -50,11 +50,13 @@ describe('chapters', () => {
 		const slugs = chapters.flatMap((c) => c.projects.map((p) => p.slug));
 		expect(slugs.filter((s) => !projects[s])).toEqual([]);
 		expect(new Set(slugs).size).toBe(slugs.length);
+		expect(chapters.filter((c) => c.projects.length === 0).map((c) => c.id)).toEqual([]);
 	});
 
 	it('have unique ids that are not reserved', () => {
 		const ids = [...chapters.map((c) => c.id), 'top', 'about', 'main'];
 		expect(new Set(ids).size).toBe(ids.length);
+		expect(chapters.map((c) => c.id).filter((id) => !/^[a-z][a-z0-9-]*$/.test(id))).toEqual([]);
 		const repos = Object.values(projects).map((p) => p.repo.split('/')[1]?.toLowerCase());
 		const reserved = new Set(['hero', ...TAKEN, ...repos]);
 		expect(
@@ -77,32 +79,39 @@ describe.each(Object.entries(files))('%s', (path, { default: project }) => {
 	});
 
 	it('has the required shape', () => {
+		expect(project.slug).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
 		expect(project.repo).toMatch(/^[\w.-]+\/[\w.-]+$/);
 		expect(project.highlights.length).toBeGreaterThanOrEqual(2);
 		expect(project.highlights.length).toBeLessThanOrEqual(4);
 		expect(project.stats?.length ?? 0).toBeLessThanOrEqual(4);
 		expect(project.stack.length).toBeGreaterThan(0);
-		if (project.repo.split('/')[0] !== site.owner) expect(project.role).toBeTruthy();
+		if (project.repo.split('/')[0]?.toLowerCase() !== site.owner.toLowerCase())
+			expect(project.role).toBeTruthy();
 		if (project.status !== 'complete')
 			expect(project.statusNote?.trim(), 'statusNote').toBeTruthy();
 	});
 
+	// Both collect failures so a project without links or images still makes one assertion.
 	it('links to https URLs only', () => {
-		for (const link of project.links ?? []) expect(new URL(link.href).protocol).toBe('https:');
+		const insecure = (project.links ?? []).filter((l) => new URL(l.href).protocol !== 'https:');
+		expect(insecure.map((l) => l.href)).toEqual([]);
 	});
 
 	it('has encoded images with alt text', () => {
+		const problems: string[] = [];
+		const name = new RegExp(`^${project.slug}/[a-z0-9-]+$`);
 		for (const image of images(project)) {
-			expect(image.alt.trim().length, image.src).toBeGreaterThan(10);
+			if (image.alt.trim().length <= 10) problems.push(`${image.src}: alt text too short`);
 			for (const src of [image.src, image.dark].filter((s) => s !== undefined)) {
-				expect(src, 'lowercase <slug>/<name>').toMatch(new RegExp(`^${project.slug}/[a-z0-9-]+$`));
-				expect(imageInfo(src), `${src} missing; run pnpm images`).toBeDefined();
+				if (!name.test(src)) problems.push(`${src}: not lowercase <slug>/<name>`);
+				if (!imageInfo(src)) problems.push(`${src}: not encoded; run pnpm images`);
 				const exists = ['png', 'jpg', 'jpeg'].some((ext) =>
 					existsSync(`assets/projects/${src}.${ext}`)
 				);
-				expect(exists, `assets/projects/${src}.png missing`).toBe(true);
+				if (!exists) problems.push(`assets/projects/${src}.png missing`);
 			}
 		}
+		expect(problems).toEqual([]);
 	});
 
 	it('has charts with matching lengths', () => {

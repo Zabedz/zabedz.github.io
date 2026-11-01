@@ -3,7 +3,7 @@
 </script>
 
 <details class="data">
-	<summary>Show the data</summary>
+	<summary>Show the data<span class="visually-hidden">: {label}</span></summary>
 	<!-- A scrolling region must take focus so keyboard users can scroll it (axe scrollable-region-focusable). -->
 	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 	<div class="scroll" tabindex="0" role="region" aria-label={label}>

@@ -38,6 +38,7 @@
 						<rect
 							class="mark"
 							data-series={s}
+							data-neg={value < 0 ? '' : undefined}
 							x="{b.x}%"
 							y={s * 12 + 2}
 							width="{b.width}%"

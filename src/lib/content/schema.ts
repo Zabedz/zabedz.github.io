@@ -41,7 +41,7 @@ export interface BarChart {
 	/** Header for the category column of the data table. */
 	categoryLabel?: string;
 	series: [Series] | [Series, Series];
-	/** 'percent' values are already percentages: 5 means 5%. */
+	/** 'percent' values are signed changes in percent: 5 renders as +5%. */
 	format: 'decimal' | 'percent';
 	note?: string;
 }
@@ -108,7 +108,7 @@ export interface Project {
 
 export interface ChapterEntry {
 	slug: string;
-	/** Gets a pinned scroll scene; others render as compact rows. */
+	/** Pinned scroll scene on wide screens, once the project has a `visual`. Others scroll in normal flow. */
 	featured?: boolean;
 }
 

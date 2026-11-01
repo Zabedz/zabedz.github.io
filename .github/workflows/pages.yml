@@ -33,12 +33,17 @@ jobs:
         run: pnpm fetch:projects
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: pnpm exec playwright install --with-deps chromium firefox
+      - run: pnpm exec playwright install --with-deps chromium firefox webkit
       - run: pnpm check
       - run: pnpm lint
       - run: pnpm test
       - name: Build and test the production build
-        run: pnpm test:e2e --project chromium --project firefox
+        run: pnpm test:e2e
+      - name: Check build output and budgets
+        run: pnpm check:dist
+        env:
+          SITE_URL: https://zabedz.github.io/
+          BASE_PATH: ''
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:

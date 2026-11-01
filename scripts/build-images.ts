@@ -81,7 +81,7 @@ try {
 			if (!NAME.test(name) || extname(file) !== extname(file).toLowerCase()) {
 				throw new Error(`${src}: rename to lowercase letters, digits and dashes`);
 			}
-			const [width, height] = dimensions(src);
+			const [width] = dimensions(src);
 			const widths = WIDTHS.filter((w) => w <= width);
 			if (widths.length === 0) widths.push(width);
 
@@ -92,12 +92,10 @@ try {
 				encode(src, out, w, tmp);
 				console.log(`${out} ${Math.round(statSync(out).size / 1024)} kB`);
 			}
+			// ffmpeg rounds the height to even, so read it back from the largest file.
 			const top = widths.at(-1) ?? width;
-			manifest[`${slug}/${name}`] = {
-				width: top,
-				height: Math.round((height * top) / width),
-				widths
-			};
+			const [, encoded] = dimensions(join(OUT, slug, `${name}-${top}.avif`));
+			manifest[`${slug}/${name}`] = { width: top, height: encoded, widths };
 		}
 	}
 

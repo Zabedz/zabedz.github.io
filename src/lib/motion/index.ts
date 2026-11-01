@@ -15,12 +15,16 @@ export function jump(event: MouseEvent & { currentTarget: HTMLAnchorElement }): 
 		return;
 	}
 	event.preventDefault();
-	document.startViewTransition(() => {
+	const root = document.documentElement;
+	// Picks the slide direction in base.css.
+	root.dataset.vt = target.getBoundingClientRect().top > 0 ? 'down' : 'up';
+	const transition = document.startViewTransition(() => {
 		// Untrusted, so this handler skips it and SvelteKit records history and scroll.
 		link.click();
 		target.scrollIntoView({ block: 'start', behavior: 'instant' });
 		target.focus({ preventScroll: true });
 	});
+	void transition.finished.finally(() => delete root.dataset.vt);
 }
 
 /**

@@ -14,7 +14,7 @@ export default defineConfig({
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 			adapter: adapter({ strict: true }),
-			// All CSS (about 17 kB raw) inlines, so first paint waits on no stylesheet request.
+			// Inlines each CSS file under 20 kB raw, so first paint waits on no stylesheet request.
 			inlineStyleThreshold: 20_000,
 			csp: {
 				mode: 'hash',
@@ -37,6 +37,8 @@ export default defineConfig({
 	],
 	test: {
 		expect: { requireAssertions: true },
+		// The on-disk transform cache keeps stale import.meta.glob results, so a new project file is missed.
+		fsModuleCache: false,
 		projects: [
 			{
 				extends: './vite.config.ts',

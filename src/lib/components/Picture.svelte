@@ -46,11 +46,25 @@
 		gap: var(--space-1);
 	}
 
+	picture {
+		display: block;
+		inline-size: fit-content;
+		max-inline-size: 100%;
+		overflow: clip;
+		border-radius: var(--radius);
+	}
+
 	img {
 		max-inline-size: 100%;
 		block-size: auto;
-		border-radius: var(--radius);
 		background: var(--paper-2);
+		transition: scale var(--dur) var(--ease-out);
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		picture:hover img {
+			scale: 1.03;
+		}
 	}
 
 	figcaption {

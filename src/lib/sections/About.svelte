@@ -1,25 +1,23 @@
 <script lang="ts">
 	import type { Site } from '#lib/content/schema.ts';
-	import LinkList from '#lib/components/LinkList.svelte';
+	import Words from '#lib/components/Words.svelte';
 
 	let { site }: { site: Site } = $props();
 </script>
 
 <section id="about" class="about" tabindex="-1" aria-labelledby="about-title">
 	<div class="wrap grid">
-		<h2 id="about-title">About</h2>
+		<h2 id="about-title"><Words text="About" /></h2>
 		<div class="body">
 			{#each site.about as paragraph, i (i)}<p>{paragraph}</p>{/each}
-			<LinkList links={site.links} />
 		</div>
 	</div>
 </section>
 
 <style>
 	.about {
-		padding-block: var(--space-6) var(--space-5);
+		padding-block: var(--space-5);
 		border-block-start: 1px solid var(--rule);
-		margin-block-start: var(--space-5);
 	}
 
 	.grid {

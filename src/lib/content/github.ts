@@ -8,7 +8,11 @@ export interface RepoMeta {
 // Written by `pnpm fetch:projects`; a repo is missing until it has run for it.
 const repos: Record<string, RepoMeta> = metadata;
 
-const monthYear = new Intl.DateTimeFormat('en-GB', { month: 'short', year: 'numeric' });
+const monthYear = new Intl.DateTimeFormat('en-GB', {
+	month: 'short',
+	year: 'numeric',
+	timeZone: 'UTC'
+});
 
 export function lastUpdated(repo: string): string | undefined {
 	const meta = repos[repo];

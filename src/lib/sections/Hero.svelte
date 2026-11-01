@@ -48,13 +48,14 @@
 		gap: var(--space-3);
 	}
 
+	/* One line at every width: 16vw keeps the name inside a 320px screen. */
 	h1 {
-		font-size: var(--step-4);
+		font-size: min(var(--step-4), 16vw);
 		font-stretch: 75%;
 		font-weight: 700;
 		line-height: 0.88;
 		letter-spacing: -0.01em;
-		max-inline-size: 9ch;
+		white-space: nowrap;
 	}
 
 	.headline {
@@ -86,7 +87,29 @@
 		fill: var(--series-2);
 	}
 
+	/*
+	 * Load: the name and headline rise into place at full opacity (the headline is the LCP
+	 * element), the links fade in after them, and the diagonal grows before the dots settle.
+	 */
 	@media (prefers-reduced-motion: no-preference) {
+		h1 {
+			animation: lift 900ms var(--ease-spring) both;
+		}
+
+		.headline {
+			animation: lift 800ms var(--ease-spring) 80ms both;
+		}
+
+		.text > :global(.links) {
+			animation: fade-up 600ms var(--ease-out) 260ms both;
+		}
+
+		line {
+			transform-box: fill-box;
+			transform-origin: 0 100%;
+			animation: grow 900ms var(--ease-out) both;
+		}
+
 		.drop {
 			animation: settle 900ms var(--ease-out) 300ms both;
 		}
@@ -108,12 +131,44 @@
 			--lift: 25px;
 		}
 
-		@supports (animation-timeline: view()) {
+		/* Scroll: the text recedes and the chart drifts up a little slower than the page. */
+		@supports (animation-timeline: view()) and (animation-range: 0% 100%) {
 			.text {
 				animation: fade-out linear both;
 				animation-timeline: view();
 				animation-range: exit 0% exit 80%;
 			}
+
+			.curve {
+				animation: drift linear both;
+				animation-timeline: scroll(root);
+				animation-range: 0 100svh;
+			}
+		}
+	}
+
+	@keyframes lift {
+		from {
+			translate: 0 0.35em;
+		}
+	}
+
+	@keyframes fade-up {
+		from {
+			opacity: 0;
+			translate: 0 0.75rem;
+		}
+	}
+
+	@keyframes grow {
+		from {
+			scale: 0;
+		}
+	}
+
+	@keyframes drift {
+		to {
+			translate: 0 -8vh;
 		}
 	}
 
@@ -126,7 +181,8 @@
 	@keyframes fade-out {
 		to {
 			opacity: 0;
-			transform: translateY(-2rem);
+			scale: 0.96;
+			translate: 0 -2rem;
 		}
 	}
 </style>
