@@ -9,3 +9,19 @@ yarn-error.log*
 .pnp.js
 
 .vscode/*
+.idea/
+.DS_Store
+
+.env
+.env.*
+!.env.example
+
+/build
+/.svelte-kit
+/test-results
+/playwright-report
+/blob-report
+/coverage
+/.lighthouseci
+
+vite.config.ts.timestamp-*

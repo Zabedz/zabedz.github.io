@@ -1,0 +1,195 @@
+{
+	"agentic-ds/replan-iterations": {
+		"width": 1600,
+		"height": 590,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
+	"agentic-ds/replan-rejected": {
+		"width": 800,
+		"height": 541,
+		"widths": [
+			480,
+			800
+		]
+	},
+	"agentic-ds/sagemaker-run": {
+		"width": 800,
+		"height": 460,
+		"widths": [
+			480,
+			800
+		]
+	},
+	"authledger/admin-panel": {
+		"width": 480,
+		"height": 538,
+		"widths": [
+			480
+		]
+	},
+	"authledger/payment-element": {
+		"width": 480,
+		"height": 554,
+		"widths": [
+			480
+		]
+	},
+	"authledger/recovery-codes": {
+		"width": 480,
+		"height": 492,
+		"widths": [
+			480
+		]
+	},
+	"chess-editor/best-move-dark": {
+		"width": 1600,
+		"height": 990,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
+	"chess-editor/best-move": {
+		"width": 1600,
+		"height": 990,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
+	"chess-editor/settings-dark": {
+		"width": 800,
+		"height": 1377,
+		"widths": [
+			480,
+			800
+		]
+	},
+	"chess-editor/settings": {
+		"width": 800,
+		"height": 1377,
+		"widths": [
+			480,
+			800
+		]
+	},
+	"dissertation/pipeline": {
+		"width": 1600,
+		"height": 337,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
+	"fiscal-till/drills-dark": {
+		"width": 1600,
+		"height": 694,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
+	"fiscal-till/drills": {
+		"width": 1600,
+		"height": 694,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
+	"fiscal-till/sales-waiting-to-be-signed": {
+		"width": 800,
+		"height": 320,
+		"widths": [
+			480,
+			800
+		]
+	},
+	"fiscal-till/till-receipt": {
+		"width": 800,
+		"height": 500,
+		"widths": [
+			480,
+			800
+		]
+	},
+	"frontier/calibration-figure-dark": {
+		"width": 1600,
+		"height": 658,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
+	"frontier/calibration-figure": {
+		"width": 1600,
+		"height": 658,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
+	"pv-bess/architecture": {
+		"width": 1600,
+		"height": 862,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
+	"tombstone/orphaned-insert-dark": {
+		"width": 1600,
+		"height": 1102,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
+	"tombstone/orphaned-insert": {
+		"width": 1600,
+		"height": 1102,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
+	"tombstone/rga-tree-dark": {
+		"width": 1600,
+		"height": 855,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
+	"tombstone/rga-tree": {
+		"width": 1600,
+		"height": 855,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
+	"tombstone/visualiser-merge": {
+		"width": 480,
+		"height": 185,
+		"widths": [
+			480
+		]
+	}
+}
