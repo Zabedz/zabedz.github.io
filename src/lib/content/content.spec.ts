@@ -13,6 +13,12 @@ const files = import.meta.glob<{ default: Project }>(['./projects/*.ts', '!./pro
 // Paths already taken on the shared origin by other Pages sites.
 const TAKEN = ['resume', 'chess-editor', 'dissertation', 'fiscal-till'];
 
+// A count of tests or spec files says nothing about the work; say what a test proves instead.
+const TEST_COUNT =
+	/\b\d[\d,]*\s+(?:[\w-]+\s+){0,2}(?:tests|test (?:files|functions|cases)|specs|spec files)\b/i;
+// Plural only: 'Test balanced accuracy' is a held-out score.
+const TEST_STAT = /\b(?:tests|specs|spec files|test (?:files|functions|cases))\b/i;
+
 const BANNED_WORDS =
 	/\b(delve|tapestry|boast|leverag|seamless|robust|realm|landscape|underscore|testament|navigat|elevat|pivotal|intricate|meticulous|showcas|foster|embark|synerg|harness|streamline|utili[sz]|comprehensive|notably|crucial|vital(ly)?\b|groundbreaking|transformative|innovative|cutting-edge|bespoke|garner|bolster|myriad|plethora|nuanced|holistic|profound|invaluable|unparalleled|adept|ever-evolving|unlock|empower|revolutioni[sz]|paramount|facilitat|endeavo|poised|nestled|renowned|captivating|moreover|furthermore|additionally|consequently|arguably|undoubtedly|essentially|powerful|game-changing|effortless|world-class|state-of-the-art|unleash|supercharg|intuitive|versatile|firstly|secondly|thirdly|ultimately|from scratch|hand-built|built by hand|single author|sole author)/i;
 
@@ -110,6 +116,12 @@ describe.each(Object.entries(files))('%s', (path, { default: project }) => {
 			}
 		}
 		expect(problems).toEqual([]);
+	});
+
+	it('does not count tests', () => {
+		const counts = strings(project).filter((text) => TEST_COUNT.test(text));
+		const stats = (project.stats ?? []).filter((stat) => TEST_STAT.test(stat.label));
+		expect([...counts, ...stats.map((s) => s.label)]).toEqual([]);
 	});
 
 	it('has charts with matching lengths', () => {

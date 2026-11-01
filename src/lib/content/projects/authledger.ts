@@ -25,11 +25,6 @@ export default {
 		'The server refuses to boot if any /api route lacks an authorization policy. Money rules a single permission cannot express, such as ownership and refund ceilings, are pure functions in their own module.',
 		'A nightly CI job drives a real browser through register, email verification, MFA, a Stripe test-mode payment settled by webhook, a refund, and reconciliation.'
 	],
-	stats: [
-		{ value: '12', label: 'SQL migrations' },
-		{ value: '25', label: 'API test files' },
-		{ value: '4', label: 'Playwright specs' }
-	],
 	visual: {
 		type: 'steps',
 		title: 'Payment to ledger',

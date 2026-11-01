@@ -4,8 +4,7 @@ export default {
 	slug: 'tombstone',
 	repo: 'Zabedz/Tombstone',
 	title: 'Tombstone',
-	pitch:
-		'A collaborative plain-text editor on an RGA CRDT in TypeScript, checked by 57 property-based tests.',
+	pitch: 'A collaborative plain-text editor on an RGA CRDT in TypeScript.',
 	summary:
 		'Tombstone is a TypeScript monorepo built around an RGA text CRDT, with a WebSocket relay that does version-vector catch-up, a browser editor, and a visualiser that steps two replicas through a merge. Concurrent edits converge to the same text on every replica. Property tests over convergence, commutativity, causal delivery, and lost or duplicated characters are the main evidence of correctness.',
 	status: 'complete',
@@ -24,11 +23,6 @@ export default {
 		'A first-cut tombstone collector let replicas diverge ("" vs "y") by removing a deleted leaf while a concurrent insert after it was in flight. Collection now waits for a quiescent frontier.',
 		'Gapless per-replica counters let a version vector name exactly which operations a peer is missing. Catch-up is property-tested over a link that drops and reorders messages.',
 		'The CRDT package has no dependencies and no DOM types, ESLint blocks wrong-way imports between layers, and CI gates on typecheck, lint, unit, and property tests.'
-	],
-	stats: [
-		{ value: '57', label: 'Property tests' },
-		{ value: '16', label: 'Property test files' },
-		{ value: '4', label: 'Layers, one-way imports' }
 	],
 	visual: {
 		type: 'image',

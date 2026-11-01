@@ -25,10 +25,6 @@ export default {
 		'The editor plays real chess too: castling moves king and rook together, en passant is playable and can be suggested, Back undoes an edit, and Forward plays the engine move.',
 		'A settings dialog sets search depth from 6 to 22, one of four board themes, sound, and rebindable keyboard shortcuts, saved in localStorage.'
 	],
-	stats: [
-		{ value: '150', label: 'Vitest unit tests' },
-		{ value: '13', label: 'Playwright spec files' }
-	],
 	visual: {
 		type: 'image',
 		image: {

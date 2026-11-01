@@ -19,8 +19,7 @@ export default {
 	stats: [
 		{ value: '96', label: 'Fifteen-minute steps per plan' },
 		{ value: '18,401', label: 'GBP planned profit in one committed sample run' },
-		{ value: '2 of 3', label: 'Daily cycles used in that run' },
-		{ value: '580', label: 'Test functions' }
+		{ value: '2 of 3', label: 'Daily cycles used in that run' }
 	],
 	visual: {
 		type: 'chart',
