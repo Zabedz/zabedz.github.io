@@ -90,10 +90,11 @@
 	}
 </script>
 
-{#snippet arrow(direction: 'prev' | 'next')}
+{#snippet arrow(direction: 'prev' | 'next', large = false)}
 	{@const by = direction === 'prev' ? -1 : 1}
 	<StepButton
 		{direction}
+		{large}
 		label="{direction === 'prev' ? 'Previous' : 'Next'} project: {name(at(active + by))}"
 		onclick={() => move((n) => n.step(by))}
 	/>
@@ -137,8 +138,8 @@
 	<div class="stage">
 		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 		<div class="rails" role="group" aria-label="Previous and next project" {onkeydown}>
-			<div class="rail prev">{@render arrow('prev')}</div>
-			<div class="rail next">{@render arrow('next')}</div>
+			<div class="rail prev">{@render arrow('prev', true)}</div>
+			<div class="rail next">{@render arrow('next', true)}</div>
 		</div>
 		<!-- tabindex: Firefox otherwise makes the scroller its own unnamed tab stop. -->
 		<div class="track" tabindex="-1" bind:this={track}>
@@ -153,8 +154,8 @@
 <style>
 	.projects {
 		--bar-h: 3.75rem;
-		/* StepButton's size. */
-		--arrow: 2.75rem;
+		/* Width of the large StepButton. */
+		--arrow: 3rem;
 		/* From 48rem each arrow sits in a column beside the slides, which narrow to make room. */
 		--rail: calc(var(--arrow) + 2 * var(--space-2));
 		--inner: min(100% - 2 * var(--rail), var(--page));
@@ -310,7 +311,7 @@
 		pointer-events: none;
 	}
 
-	/* Spans the slide's padding box so the arrow starts level with the slide's first line. */
+	/* Starts at the slide's top padding, so the arrow sits level with the project title. */
 	.rail {
 		position: absolute;
 		inset-block: 0;
@@ -318,7 +319,7 @@
 		justify-content: center;
 		align-items: flex-start;
 		inline-size: var(--rail);
-		padding-block: var(--space-4) var(--space-5);
+		padding-block-start: var(--space-4);
 	}
 
 	.rail.prev {
@@ -329,10 +330,7 @@
 		inset-inline-end: calc((100% - var(--inner)) / 2 - var(--rail));
 	}
 
-	/* Holds the arrow at the middle of the screen below the bar while a tall slide scrolls past. */
 	.rail > :global(.arrow) {
-		position: sticky;
-		inset-block-start: calc((100svh + var(--nav-h) + var(--bar-h) - var(--arrow)) / 2);
 		pointer-events: auto;
 	}
 
