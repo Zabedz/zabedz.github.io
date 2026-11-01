@@ -196,8 +196,8 @@
 				animation-range: exit 0% exit 60%;
 			}
 
-			/* Laptop heights: tighter padding, a height-capped title and shorter line panels keep
-			 * the stage on screen. */
+			/* Laptop heights: tighter padding, a height-capped title, shorter line panels and
+			 * closer steps keep the stage on screen. */
 			@media (max-height: 50rem) {
 				.featured .stage {
 					padding-block: var(--space-1);
@@ -209,6 +209,18 @@
 
 				.featured .lines .panel svg {
 					block-size: 3.5rem;
+				}
+
+				.featured .visual .steps {
+					gap: var(--space-1);
+				}
+
+				.featured .steps .step {
+					padding-block-end: var(--space-1);
+				}
+
+				.featured .steps .detail {
+					line-height: 1.35;
 				}
 			}
 
