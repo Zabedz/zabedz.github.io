@@ -85,8 +85,14 @@ describe.each(Object.entries(files))('%s', (path, { default: project }) => {
 
 	// Both collect failures so a project without links or images still makes one assertion.
 	it('links to https URLs only', () => {
-		const insecure = (project.links ?? []).filter((l) => new URL(l.href).protocol !== 'https:');
+		const links = [...(project.links ?? []), ...(project.summaryLinks ?? [])];
+		const insecure = links.filter((l) => new URL(l.href).protocol !== 'https:');
 		expect(insecure.map((l) => l.href)).toEqual([]);
+	});
+
+	it('links only phrases the summary contains', () => {
+		const missing = (project.summaryLinks ?? []).filter((l) => !project.summary.includes(l.label));
+		expect(missing.map((l) => l.label)).toEqual([]);
 	});
 
 	it('has encoded images with alt text', () => {

@@ -89,6 +89,8 @@ export interface Project {
 	pitch: string;
 	/** Two or three sentences. */
 	summary: string;
+	/** Phrases in `summary` that link out; each `label` appears in it verbatim. */
+	summaryLinks?: Link[];
 	status: Status;
 	/** What is missing or still running. */
 	statusNote?: string;

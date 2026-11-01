@@ -8,6 +8,7 @@ export default {
 		'Tests whether quantizing a language model hurts its calibration faster than its accuracy, on a single 16GB GPU.',
 	summary:
 		'A quantized model is usually signed off by comparing its accuracy against the original, a check that can pass while its confidence stops tracking whether it is right. Frontier defines each compression variant in a YAML config, scores it on Qwen2.5-3B over 2000 MMLU items, and records ECE, Brier and reliability diagrams next to accuracy. The FP16 baseline and five compressed variants across Hugging Face and llama.cpp are measured so far, and the work is funded by a BlueDot Impact Rapid Grant.',
+	summaryLinks: [{ label: 'BlueDot Impact Rapid Grant', href: 'https://bluedot.org/grants/rapid' }],
 	status: 'active',
 	statusNote:
 		'Remaining: the vLLM batch (GPTQ, AWQ, W8A8), paired bootstrap intervals on every measured pair, the QAT arm and the distillation arm.',

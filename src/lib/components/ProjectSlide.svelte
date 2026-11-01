@@ -6,6 +6,7 @@
 	import { chartTable } from './charts/table.ts';
 	import DataTable from './charts/DataTable.svelte';
 	import LinkList from './LinkList.svelte';
+	import LinkedText from './LinkedText.svelte';
 	import Picture from './Picture.svelte';
 	import StatList from './StatList.svelte';
 	import StatusBadge from './StatusBadge.svelte';
@@ -54,7 +55,7 @@
 			/>
 			<h3 id="{id}-title">{project.title}</h3>
 			<p class="pitch">{project.pitch}</p>
-			<p>{project.summary}</p>
+			<p><LinkedText text={project.summary} links={project.summaryLinks} /></p>
 			{#if project.credit}<p class="muted">{project.credit}</p>{/if}
 			{#if project.status !== 'complete' && project.statusNote}
 				<p class="muted"><strong>Status.</strong> {project.statusNote}</p>
