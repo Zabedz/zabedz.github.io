@@ -90,6 +90,15 @@
 	}
 </script>
 
+{#snippet arrow(direction: 'prev' | 'next')}
+	{@const by = direction === 'prev' ? -1 : 1}
+	<StepButton
+		{direction}
+		label="{direction === 'prev' ? 'Previous' : 'Next'} project: {name(at(active + by))}"
+		onclick={() => move((n) => n.step(by))}
+	/>
+{/snippet}
+
 <section
 	id="projects"
 	class="projects"
@@ -118,26 +127,25 @@
 				{/each}
 			</ul>
 			<div class="stepper">
-				<StepButton
-					direction="prev"
-					label="Previous project: {name(at(active - 1))}"
-					onclick={() => move((n) => n.step(-1))}
-				/>
+				{@render arrow('prev')}
 				<p class="count" aria-hidden="true">{active + 1} / {shown.length}</p>
-				<StepButton
-					direction="next"
-					label="Next project: {name(at(active + 1))}"
-					onclick={() => move((n) => n.step(1))}
-				/>
+				{@render arrow('next')}
 			</div>
 		</div>
 	</div>
 
-	<!-- tabindex: Firefox otherwise makes the scroller its own unnamed tab stop. -->
-	<div class="track" tabindex="-1" bind:this={track}>
-		{#each shown as project (project.slug)}
-			<ProjectSlide {project} />
-		{/each}
+	<div class="stage">
+		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+		<div class="rails" role="group" aria-label="Previous and next project" {onkeydown}>
+			<div class="rail prev">{@render arrow('prev')}</div>
+			<div class="rail next">{@render arrow('next')}</div>
+		</div>
+		<!-- tabindex: Firefox otherwise makes the scroller its own unnamed tab stop. -->
+		<div class="track" tabindex="-1" bind:this={track}>
+			{#each shown as project (project.slug)}
+				<ProjectSlide {project} />
+			{/each}
+		</div>
 	</div>
 	<p class="visually-hidden" aria-live="polite">{announcement}</p>
 </section>
@@ -145,6 +153,11 @@
 <style>
 	.projects {
 		--bar-h: 3.75rem;
+		/* StepButton's size. */
+		--arrow: 2.75rem;
+		/* From 48rem each arrow sits in a column beside the slides, which narrow to make room. */
+		--rail: calc(var(--arrow) + 2 * var(--space-2));
+		--inner: min(100% - 2 * var(--rail), var(--page));
 		padding-block-start: var(--space-5);
 		border-block-start: 1px solid var(--rule);
 	}
@@ -281,8 +294,61 @@
 	}
 
 	/* Without JS the buttons do nothing; the name links still scroll the track. */
-	:global(html:not([data-hydrated])) .stepper {
+	:global(html:not([data-hydrated])) :is(.stepper, .rails) {
 		visibility: hidden;
+	}
+
+	.stage {
+		position: relative;
+	}
+
+	.rails {
+		display: none;
+		position: absolute;
+		inset: 0;
+		z-index: 4;
+		pointer-events: none;
+	}
+
+	/* Spans the slide's padding box so the arrow starts level with the slide's first line. */
+	.rail {
+		position: absolute;
+		inset-block: 0;
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+		inline-size: var(--rail);
+		padding-block: var(--space-4) var(--space-5);
+	}
+
+	.rail.prev {
+		inset-inline-start: calc((100% - var(--inner)) / 2 - var(--rail));
+	}
+
+	.rail.next {
+		inset-inline-end: calc((100% - var(--inner)) / 2 - var(--rail));
+	}
+
+	/* Holds the arrow at the middle of the screen below the bar while a tall slide scrolls past. */
+	.rail > :global(.arrow) {
+		position: sticky;
+		inset-block-start: calc((100svh + var(--nav-h) + var(--bar-h) - var(--arrow)) / 2);
+		pointer-events: auto;
+	}
+
+	@media (width >= 48rem) {
+		.bar > .wrap,
+		.track > :global(.slide > .wrap) {
+			inline-size: var(--inner);
+		}
+
+		.rails {
+			display: block;
+		}
+
+		.stepper > :global(.arrow) {
+			display: none;
+		}
 	}
 
 	/* Phones: the names take their own row above the stepper. */

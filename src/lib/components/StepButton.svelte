@@ -9,7 +9,7 @@
 	let { direction, label, onclick, small = false }: Props = $props();
 </script>
 
-<button type="button" class="arrow" class:small aria-label={label} {onclick}>
+<button type="button" class="arrow {direction}" class:small aria-label={label} {onclick}>
 	<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
 		<path d={direction === 'prev' ? 'M10 3 5 8l5 5' : 'M6 3l5 5-5 5'} />
 	</svg>
@@ -50,6 +50,21 @@
 	@media (hover: hover) {
 		.arrow:hover {
 			border-color: var(--accent);
+		}
+	}
+
+	/* The chevron leans the way the button moves. */
+	@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+		svg {
+			transition: translate var(--dur-fast) var(--ease-out);
+		}
+
+		.prev:hover svg {
+			translate: -2px 0;
+		}
+
+		.next:hover svg {
+			translate: 2px 0;
 		}
 	}
 
