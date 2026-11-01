@@ -1,8 +1,7 @@
 /*
- * Scroll-linked motion for the whole page. Keyframes live here, unscoped: Svelte renames a
- * `-global-` keyframe but not the `animation` that uses it. Base styles are the final state, so
- * every keyframe defines only `from` (or only `to` for exits) and removing a rule leaves content
- * in place.
+ * Motion for the whole page. Keyframes live here, unscoped: Svelte renames a `-global-` keyframe
+ * but not the `animation` that uses it. Base styles are the final state, so removing a rule
+ * leaves content in place.
  */
 
 @keyframes rise {
@@ -18,17 +17,27 @@
 	}
 }
 
-@keyframes settle {
-	from {
-		opacity: 0;
-		scale: 0.9;
+/* Slides and figures dim at the edges of their scroller and are at rest when centered. */
+@keyframes pass {
+	from,
+	to {
+		opacity: 0.2;
+		scale: 0.96;
+	}
+
+	50% {
+		opacity: 1;
+		scale: 1;
 	}
 }
 
-@keyframes recede {
+@keyframes drift-x {
+	from {
+		translate: 4rem 0;
+	}
+
 	to {
-		opacity: 0.15;
-		scale: 0.96;
+		translate: -4rem 0;
 	}
 }
 
@@ -58,24 +67,30 @@
 	}
 }
 
+@keyframes enter-next {
+	from {
+		opacity: 0;
+		translate: 6vw 0;
+	}
+}
+
+@keyframes enter-prev {
+	from {
+		opacity: 0;
+		translate: -6vw 0;
+	}
+}
+
+/* Scroll-linked: reveals on the page, and slides passing through the carousel. */
 @supports (animation-timeline: view()) and (animation-range: 0% 100%) {
 	@media (prefers-reduced-motion: no-preference) {
-		/* Every width: blocks rise as they enter the viewport. */
-		.about .body > *,
-		.opener p,
-		.project .intro > *,
-		.project .visual,
-		.project .prose,
-		.project .facts,
-		.project .table,
-		.project .gallery > * {
+		.about .body > * {
 			animation: rise linear both;
 			animation-timeline: view();
 			animation-range: entry 0% entry 90%;
 		}
 
-		.about .body > :nth-child(2),
-		.project .facts {
+		.about .body > :nth-child(2) {
 			animation-range: entry 10% cover 30%;
 		}
 
@@ -103,223 +118,133 @@
 			animation-range: entry 60% cover 42%;
 		}
 
-		/* Charts and step lists play against their own figure. */
-		.chart,
-		.steps {
-			view-timeline: --figure block;
-		}
-
-		.bars .mark {
-			transform-box: fill-box;
-			transform-origin: left center;
-			animation: grow-x linear both;
-			animation-timeline: --figure;
-			animation-range: entry 50% cover 50%;
-		}
-
-		.bars .mark[data-neg] {
-			transform-origin: right center;
-		}
-
-		.lines .panel svg {
-			animation: wipe linear both;
-			animation-timeline: --figure;
-			animation-range: entry 40% cover 50%;
-		}
-
-		.scatter .mark {
-			transform-box: fill-box;
-			transform-origin: center;
-			animation: pop linear both;
-			animation-timeline: --figure;
-			animation-range: entry 40% cover 40%;
-		}
-
-		.scatter .mark:nth-of-type(3n + 1) {
-			animation-range: entry 50% cover 45%;
-		}
-
-		.scatter .mark:nth-of-type(3n + 2) {
-			animation-range: entry 60% cover 50%;
-		}
-
-		.step {
-			animation: light linear both;
-			animation-timeline: --figure;
-			animation-range: entry 40% cover 40%;
-		}
-
-		.step:nth-child(2) {
-			animation-range: entry 50% cover 43%;
-		}
-
-		.step:nth-child(3) {
-			animation-range: entry 60% cover 46%;
-		}
-
-		.step:nth-child(4) {
-			animation-range: entry 70% cover 49%;
-		}
-
-		.step:nth-child(5) {
-			animation-range: entry 80% cover 52%;
-		}
-
-		.step:nth-child(n + 6) {
-			animation-range: entry 90% cover 55%;
-		}
-
 		/*
-		 * Wide and tall screens: featured projects pin. The stage sticks below the nav while its
-		 * 200svh track scrolls past; its parts play over the first 70% of the pin, then the stage
-		 * recedes as the next project arrives. The stage grows with its content and holds nothing
-		 * focusable (chart tables render below it).
+		 * Snap points come from the transformed box, so the snapped slide and figure stay
+		 * untransformed and their contents carry the motion.
 		 */
-		@media (min-width: 64rem) and (min-height: 40rem) {
-			.project.featured {
-				padding-block-start: 0;
-			}
+		.slide {
+			view-timeline: --slide inline;
+		}
 
-			.featured .track {
-				block-size: 200svh;
-				view-timeline: --scene block;
-			}
+		.slide > * {
+			animation: pass linear both;
+			animation-timeline: --slide;
+		}
 
-			.featured .stage {
-				position: sticky;
-				inset-block-start: var(--nav-h);
-				min-block-size: calc(100svh - var(--nav-h));
-				overflow-x: clip;
-				padding-block: var(--space-4);
-				animation: recede linear both;
-				animation-timeline: --scene;
-				animation-range: exit 0% exit 60%;
-			}
+		/* The title moves a little against the slide, so the two read as separate layers. */
+		.slide h3 {
+			animation: drift-x linear both;
+			animation-timeline: --slide;
+		}
 
-			/* Laptop heights: tighter padding, a height-capped title, shorter line panels and
-			 * closer steps keep the stage on screen. */
-			@media (max-height: 50rem) {
-				.featured .stage {
-					padding-block: var(--space-1);
-				}
+		.figure {
+			view-timeline: --figure inline;
+		}
 
-				.featured .intro h3 {
-					font-size: min(var(--step-3), 6.5svh);
-				}
-
-				.featured .lines .panel svg {
-					block-size: 3.5rem;
-				}
-
-				.featured .visual .steps {
-					gap: var(--space-1);
-				}
-
-				.featured .steps .step {
-					padding-block-end: var(--space-1);
-				}
-
-				.featured .steps .detail {
-					line-height: 1.35;
-				}
-			}
-
-			.featured .intro > * {
-				animation-timeline: --scene;
-				animation-range: entry 40% contain 5%;
-			}
-
-			.featured .intro > :nth-child(2) {
-				animation-range: entry 50% contain 8%;
-			}
-
-			.featured .intro > :nth-child(3) {
-				animation-range: entry 60% contain 11%;
-			}
-
-			.featured .intro > :nth-child(n + 4) {
-				animation-range: contain 0% contain 16%;
-			}
-
-			.featured .intro .stat {
-				animation: rise linear both;
-				animation-timeline: --scene;
-				animation-range: contain 8% contain 24%;
-			}
-
-			.featured .intro .stat:nth-child(2) {
-				animation-range: contain 12% contain 28%;
-			}
-
-			.featured .intro .stat:nth-child(3) {
-				animation-range: contain 16% contain 32%;
-			}
-
-			.featured .intro .stat:nth-child(4) {
-				animation-range: contain 20% contain 36%;
-			}
-
-			.featured .visual {
-				animation: settle linear both;
-				animation-timeline: --scene;
-				animation-range: entry 30% contain 15%;
-			}
-
-			.featured .bars .mark,
-			.featured .lines .panel svg,
-			.featured .scatter .mark,
-			.featured .step {
-				animation-timeline: --scene;
-			}
-
-			.featured .bars .mark {
-				animation-range: contain 15% contain 45%;
-			}
-
-			.featured .lines .panel svg {
-				animation-range: contain 15% contain 55%;
-			}
-
-			.featured .scatter .mark {
-				animation-range: contain 10% contain 35%;
-			}
-
-			.featured .scatter .mark:nth-of-type(3n + 1) {
-				animation-range: contain 18% contain 45%;
-			}
-
-			.featured .scatter .mark:nth-of-type(3n + 2) {
-				animation-range: contain 26% contain 55%;
-			}
-
-			.featured .step {
-				animation-range: contain 10% contain 20%;
-			}
-
-			.featured .step:nth-child(2) {
-				animation-range: contain 18% contain 28%;
-			}
-
-			.featured .step:nth-child(3) {
-				animation-range: contain 26% contain 36%;
-			}
-
-			.featured .step:nth-child(4) {
-				animation-range: contain 34% contain 44%;
-			}
-
-			.featured .step:nth-child(5) {
-				animation-range: contain 42% contain 52%;
-			}
-
-			.featured .step:nth-child(n + 6) {
-				animation-range: contain 50% contain 60%;
-			}
+		.figure > * {
+			animation: pass linear both;
+			animation-timeline: --figure;
 		}
 	}
 }
 
+/*
+ * Time-based: the current slide's stats rise and its shown chart draws. `data-current` comes from
+ * #lib/motion/carousel.ts after hydration and `data-seen` once the section is on screen, so the
+ * prerendered page and inactive slides stay in their final state.
+ */
 @media (prefers-reduced-motion: no-preference) {
+	.projects[data-seen] .slide[data-current] .stat {
+		animation: rise 500ms var(--ease-out) both;
+	}
+
+	.projects[data-seen] .slide[data-current] .stat:nth-child(2) {
+		animation-delay: 70ms;
+	}
+
+	.projects[data-seen] .slide[data-current] .stat:nth-child(3) {
+		animation-delay: 140ms;
+	}
+
+	.projects[data-seen] .slide[data-current] .stat:nth-child(4) {
+		animation-delay: 210ms;
+	}
+
+	.figure .bars .mark,
+	.figure .scatter .mark {
+		transform-box: fill-box;
+	}
+
+	.figure .bars .mark {
+		transform-origin: left center;
+	}
+
+	.figure .bars .mark[data-neg] {
+		transform-origin: right center;
+	}
+
+	.figure .scatter .mark {
+		transform-origin: center;
+	}
+
+	.projects[data-seen] .slide[data-current] .figure:is([data-current], :only-child) {
+		& .bars .mark {
+			animation: grow-x 700ms var(--ease-out) 150ms both;
+		}
+
+		& .lines .panel svg {
+			animation: wipe 1100ms var(--ease-out) 150ms both;
+		}
+
+		& .scatter .mark {
+			animation: pop 450ms var(--ease-spring) 150ms both;
+		}
+
+		& .scatter .mark:nth-of-type(3n + 1) {
+			animation-delay: 300ms;
+		}
+
+		& .scatter .mark:nth-of-type(3n + 2) {
+			animation-delay: 450ms;
+		}
+
+		& .step {
+			animation: light 400ms var(--ease-out) 150ms both;
+		}
+
+		& .step:nth-child(2) {
+			animation-delay: 250ms;
+		}
+
+		& .step:nth-child(3) {
+			animation-delay: 350ms;
+		}
+
+		& .step:nth-child(4) {
+			animation-delay: 450ms;
+		}
+
+		& .step:nth-child(5) {
+			animation-delay: 550ms;
+		}
+
+		& .step:nth-child(n + 6) {
+			animation-delay: 650ms;
+		}
+	}
+
+	/*
+	 * A carousel jump of more than one slide, or a wrap, is instant; carousel.ts marks the arriving
+	 * slide or figure, and its contents slide in from the side it came from.
+	 */
+	[data-enter='next'] > * {
+		animation: enter-next 240ms var(--ease-out) both;
+	}
+
+	[data-enter='prev'] > * {
+		animation: enter-prev 240ms var(--ease-out) both;
+	}
+
 	.data::details-content {
 		opacity: 0;
 		translate: 0 -0.25rem;

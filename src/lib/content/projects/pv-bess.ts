@@ -7,13 +7,11 @@ export default {
 	pitch:
 		'Plans the next 24 hours of a solar farm and grid battery in 15-minute steps from weather, price forecasts and a MILP.',
 	summary:
-		'A team pipeline that writes a 24-hour operating plan for a grid-scale battery paired with a solar farm, aimed at the UK intraday market. Open-Meteo irradiance becomes a PV generation forecast, a LightGBM model forecasts prices from Elexon BMRS data, and a mixed-integer linear program in Pyomo picks when to charge from the grid, store solar or discharge. Each run writes a 96-row dispatch schedule and a battery loss log.',
+		'A pipeline that writes a 24-hour operating plan for a grid-scale battery paired with a solar farm, aimed at the UK intraday market. Open-Meteo irradiance becomes a PV generation forecast, a LightGBM model forecasts prices from Elexon BMRS data, and a mixed-integer linear program in Pyomo picks when to charge from the grid, store solar or discharge. Each run writes a 96-row dispatch schedule and a battery loss log.',
 	status: 'complete',
-	role: 'Built the weather-to-PV path: the Open-Meteo 15-minute irradiance client, the validated PV site model and config, and the generation profile the optimizer reads. Also wired price inference and PV into the end-to-end run, set up the package layout and Black, Ruff and mypy checks, and wrote 342 of the 580 test functions.',
-	team: 'University of Essex CE903 team project (team 03)',
 	stack: ['Python', 'Pyomo', 'HiGHS', 'LightGBM', 'pandas', 'pydantic', 'Open-Meteo API', 'pytest'],
 	highlights: [
-		"The team's MILP, built in Pyomo and solved with HiGHS, allows one battery mode per 15-minute step (grid charge, solar charge or discharge) and at most three cycles a day.",
+		'The MILP, built in Pyomo and solved with HiGHS, allows one battery mode per 15-minute step (grid charge, solar charge or discharge) and at most three cycles a day.',
 		'Battery energy follows a discrete-time balance with charge and discharge efficiency, auxiliary load and self-discharge, held as a hard constraint and checked again after the solve.',
 		'Energy left at the end of the 24 hours is valued at the 30-day average price, which keeps the solver from emptying the battery at the horizon.',
 		'Solar input comes from Open-Meteo 15-minute shortwave radiation run through a PV site model with two preset sites of 50 MW and 100 MW AC.'

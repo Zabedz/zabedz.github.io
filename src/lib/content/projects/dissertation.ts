@@ -4,6 +4,7 @@ export default {
 	slug: 'dissertation',
 	repo: 'Zabedz/dissertation',
 	title: 'Guardrails, Abstention and Citation under Ablation',
+	label: 'Dissertation',
 	pitch:
 		'MSc paper testing which safety and citation parts of a local mental-health RAG assistant hold up when each is switched off.',
 	summary:

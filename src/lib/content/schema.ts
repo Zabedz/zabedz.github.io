@@ -71,7 +71,7 @@ export interface ScatterChart {
 
 export type Chart = BarChart | LineChart | ScatterChart;
 
-/** The main thing a project scene shows. */
+/** The first figure on a project slide; `gallery` images follow it. */
 export type Visual =
 	| { type: 'image'; image: ImageRef }
 	| { type: 'chart'; chart: Chart }
@@ -80,9 +80,11 @@ export type Visual =
 export interface Project {
 	/** Kebab case; equals the file name and the image folder. */
 	slug: string;
-	/** `owner/name`. An owner other than the site owner marks a collaboration. */
+	/** `owner/name`. */
 	repo: string;
 	title: string;
+	/** Short name for the project index; defaults to `title`. */
+	label?: string;
 	/** One sentence. */
 	pitch: string;
 	/** Two or three sentences. */
@@ -90,10 +92,6 @@ export interface Project {
 	status: Status;
 	/** What is missing or still running. */
 	statusNote?: string;
-	/** Collaborations: what the site owner built. */
-	role?: string;
-	/** Collaborations: who the project was for or with. */
-	team?: string;
 	/** Prior work the project started from. */
 	credit?: string;
 	stack: string[];
@@ -106,29 +104,13 @@ export interface Project {
 	links?: Link[];
 }
 
-export interface ChapterEntry {
-	slug: string;
-	/** Pinned scroll scene on wide screens, once the project has a `visual`. Others scroll in normal flow. */
-	featured?: boolean;
-}
-
-export interface Chapter {
-	/** Section id and nav target. */
-	id: string;
-	/** Nav text. */
-	label: string;
-	title: string;
-	intro: string;
-	projects: ChapterEntry[];
-}
-
 export interface Site {
 	name: string;
 	/** Hero line under the name. */
 	headline: string;
 	about: string[];
 	links: Link[];
-	/** GitHub user that owns the site; repos under another owner are collaborations. */
+	/** GitHub user that owns the site. */
 	owner: string;
 	url: string;
 	description: string;

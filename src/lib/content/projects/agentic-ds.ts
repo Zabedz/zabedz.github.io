@@ -4,6 +4,7 @@ export default {
 	slug: 'agentic-ds',
 	repo: 'Zabedz/Agentic-DS',
 	title: 'Offline Agentic Data Scientist',
+	label: 'Agentic Data Scientist',
 	pitch:
 		'A rule based agent that profiles an unseen CSV, trains scikit-learn models, and keeps a change only when it beats the best so far by a paired test or a fixed margin.',
 	summary:

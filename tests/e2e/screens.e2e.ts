@@ -34,6 +34,18 @@ for (const width of [320, 768, 1440]) {
 					path: info.outputPath(`page-${width}-${colorScheme}-${reducedMotion}.png`),
 					fullPage: true
 				});
+				if (reducedMotion === 'reduce') return;
+				// Scroll-linked reveals follow the scroll position, so a full-page capture shows
+				// them unplayed; capture each section on screen.
+				for (const id of ['about', 'projects']) {
+					await page.locator(`#${id}`).scrollIntoViewIfNeeded();
+					await page.evaluate(
+						() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)))
+					);
+					await page.screenshot({
+						path: info.outputPath(`${id}-${width}-${colorScheme}-${reducedMotion}.png`)
+					});
+				}
 			});
 		}
 	}

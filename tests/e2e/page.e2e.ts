@@ -1,10 +1,8 @@
 import AxeBuilder from '@axe-core/playwright';
-import chapters from '../../src/lib/content/chapters.ts';
+import order from '../../src/lib/content/order.ts';
 import { expect, test } from './fixtures';
 
-const SECTIONS = [...chapters.map((c) => c.id), 'about'];
-// A chapter below the first, so the jump has to scroll.
-const TARGET = chapters.at(1) ?? chapters[0];
+const SECTIONS = ['about', 'projects'];
 
 test('renders every section with its nav link', async ({ page }) => {
 	await page.goto('/');
@@ -32,9 +30,7 @@ for (const width of [320, 1440, 2560]) {
 }
 
 test('nav jump lands below the header, moves focus, and back returns', async ({ page }) => {
-	test.skip(!TARGET, 'no chapters');
-	if (!TARGET) return;
-	const { id, label } = TARGET;
+	const [id, label] = ['projects', 'Projects'];
 	await page.goto('/');
 	await page.locator('html[data-hydrated]').waitFor({ state: 'attached' });
 	await page
@@ -107,42 +103,145 @@ for (const width of [1440, 390]) {
 		test.skip(browserName !== 'chromium', 'scroll timeline support differs by engine version');
 		await page.setViewportSize({ width, height: 900 });
 		await page.goto('/');
-		expect(await page.evaluate(scrollAnimations)).toBeGreaterThan(20);
+		expect(await page.evaluate(scrollAnimations)).toBeGreaterThan(order.length);
 	});
 }
 
-for (const [width, height] of [
-	[1024, 640],
-	[1280, 720],
-	[1366, 768]
-] as const) {
-	test(`pinned stages fit the screen at ${width}x${height}`, async ({ page }) => {
-		await page.setViewportSize({ width, height });
-		await page.goto('/');
-		// offsetHeight: the stage's own animations scale its bounding box.
-		const over = await page.evaluate(() => {
-			const avail =
-				innerHeight - (document.querySelector<HTMLElement>('.site-nav')?.offsetHeight ?? 0);
-			return [...document.querySelectorAll<HTMLElement>('.featured .stage')]
-				.filter((s) => getComputedStyle(s).position === 'sticky' && s.offsetHeight > avail + 1)
-				.map((s) => `${s.parentElement?.parentElement?.id}: ${s.offsetHeight} > ${avail}`);
-		});
-		expect(over).toEqual([]);
-	});
-}
-
-test('reduced motion flattens every scene', async ({ page }) => {
+test('reduced motion turns scroll motion off', async ({ page }) => {
 	await page.setViewportSize({ width: 1440, height: 900 });
 	await page.emulateMedia({ reducedMotion: 'reduce' });
 	await page.goto('/');
 	expect(await page.evaluate(scrollAnimations)).toBe(0);
-	const tall = await page
-		.locator('.featured .track')
-		.evaluateAll(
-			(tracks) =>
-				tracks.filter((t) => t.getBoundingClientRect().height > window.innerHeight * 1.5).length
-		);
-	expect(tall).toBe(0);
+});
+
+const current = (page: import('@playwright/test').Page) =>
+	page.locator('#projects .slide:not([inert])');
+
+for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+	test(`carousel steps and wraps (${reducedMotion})`, async ({ page }) => {
+		const [first, second] = order;
+		const last = order.at(-1);
+		test.skip(!first || !second || !last, 'needs two projects');
+		if (!first || !second || !last) return;
+		await page.emulateMedia({ reducedMotion });
+		await page.goto('/');
+		await page.locator('html[data-hydrated]').waitFor({ state: 'attached' });
+
+		await expect(current(page)).toHaveCount(1);
+		await expect(current(page)).toHaveAttribute('id', `project-${first}`);
+
+		const next = page.getByRole('button', { name: /^Next project/ });
+		await next.click();
+		await expect(current(page)).toHaveAttribute('id', `project-${second}`);
+		const title = await page.locator(`#project-${second} h3`).textContent();
+		await expect(page.getByText(`Project 2 of ${order.length}: ${title}`)).toBeAttached();
+		await expect
+			.poll(() =>
+				page
+					.locator(`#project-${second}`)
+					.evaluate((el) => Math.round(el.getBoundingClientRect().left))
+			)
+			.toBe(0);
+
+		const prev = page.getByRole('button', { name: /^Previous project/ });
+		await prev.click();
+		await prev.click();
+		await expect(current(page)).toHaveAttribute('id', `project-${last}`);
+		await next.click();
+		await expect(current(page)).toHaveAttribute('id', `project-${first}`);
+
+		const chip = page.locator(`#projects a[href="#project-${last}"]`);
+		await chip.click();
+		await expect(current(page)).toHaveAttribute('id', `project-${last}`);
+		await expect(chip).toHaveAttribute('aria-current', 'true');
+
+		await next.focus();
+		await page.keyboard.press('ArrowRight');
+		await expect(current(page)).toHaveAttribute('id', `project-${first}`);
+	});
+}
+
+const settled = (page: import('@playwright/test').Page) =>
+	expect
+		.poll(() => current(page).evaluate((el) => Math.round(el.getBoundingClientRect().left)))
+		.toBe(0);
+
+test('rapid moves end on the last one, aligned', async ({ page }) => {
+	await page.goto('/');
+	await page.locator('html[data-hydrated]').waitFor({ state: 'attached' });
+	const prev = page.getByRole('button', { name: /^Previous project/ });
+	await prev.scrollIntoViewIfNeeded();
+	const box = await prev.boundingBox();
+	if (!box) throw new Error('Previous project button has no box');
+	for (let i = 0; i < 3; i++) {
+		await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+		await page.waitForTimeout(40);
+	}
+	await expect(current(page)).toHaveAttribute('id', `project-${order.at(-3)}`);
+	await settled(page);
+
+	const first = page.locator(`#projects a[href="#project-${order[0]}"]`);
+	await first.click();
+	await expect(current(page)).toHaveAttribute('id', `project-${order[0]}`);
+	// WebKit does not focus a link on click.
+	await first.focus();
+	await page.keyboard.press('ArrowLeft');
+	await page.keyboard.press('ArrowLeft');
+	await expect(current(page)).toHaveAttribute('id', `project-${order.at(-2)}`);
+	await settled(page);
+
+	await page.getByRole('button', { name: /^Next project/ }).click();
+	await page.locator(`#projects a[href="#project-${order[3]}"]`).click();
+	await expect(current(page)).toHaveAttribute('id', `project-${order[3]}`);
+	await settled(page);
+});
+
+test('arrow keys on a project name move focus with the current project', async ({ page }) => {
+	await page.setViewportSize({ width: 390, height: 800 });
+	await page.goto('/');
+	await page.locator('html[data-hydrated]').waitFor({ state: 'attached' });
+	await page.locator(`#projects a[href="#project-${order[0]}"]`).focus();
+	for (let i = 0; i < 3; i++) await page.keyboard.press('ArrowRight');
+	const focused = page.locator(`#projects a[href="#project-${order[3]}"]`);
+	await expect(focused).toBeFocused();
+	await expect(focused).toBeInViewport();
+});
+
+test('resizing after a move keeps one aligned current slide', async ({ page }) => {
+	await page.setViewportSize({ width: 1440, height: 900 });
+	await page.goto('/');
+	await page.locator('html[data-hydrated]').waitFor({ state: 'attached' });
+	const next = page.getByRole('button', { name: /^Next project/ });
+	for (let i = 0; i < 3; i++) await next.click();
+	await settled(page);
+	await page.setViewportSize({ width: 800, height: 900 });
+	await expect(current(page)).toHaveAttribute('id', `project-${order[3]}`);
+	await settled(page);
+});
+
+test('the track is as tall as the current slide', async ({ page }) => {
+	await page.goto('/');
+	await page.locator('html[data-hydrated]').waitFor({ state: 'attached' });
+	const heights = () =>
+		page.evaluate(() => {
+			const track = document.querySelector<HTMLElement>('#projects .track');
+			const slide = document.querySelector<HTMLElement>('#projects .slide:not([inert])');
+			return [track?.offsetHeight, slide?.offsetHeight];
+		});
+	const [track, slide] = await heights();
+	expect(track).toBe(slide);
+	await page.getByRole('button', { name: /^Next project/ }).click();
+	await expect.poll(async () => new Set(await heights()).size).toBe(1);
+});
+
+test('a project link opens its slide', async ({ page }) => {
+	const target = order[3] ?? order.at(-1);
+	test.skip(!target, 'no projects');
+	if (!target) return;
+	await page.goto(`/#project-${target}`);
+	await page.locator('html[data-hydrated]').waitFor({ state: 'attached' });
+	await expect(current(page)).toHaveAttribute('id', `project-${target}`);
+	await expect(page.locator(`#project-${target}`)).toBeInViewport();
 });
 
 test('every image loads', async ({ page }) => {
@@ -159,4 +258,18 @@ test('every image loads', async ({ page }) => {
 				.map((img) => img.currentSrc || img.src)
 		);
 	expect(broken).toEqual([]);
+});
+
+test.describe('without JS', () => {
+	test.use({ javaScriptEnabled: false });
+
+	test('project names reach every slide and the buttons stay hidden', async ({ page }) => {
+		const target = order.at(-1);
+		test.skip(!target, 'no projects');
+		await page.goto('/');
+		await expect(page.locator('#projects .stepper')).toBeHidden();
+		await expect(page.locator('#projects [aria-current]')).toHaveCount(0);
+		await page.locator(`#projects a[href="#project-${target}"]`).click();
+		await expect(page.locator(`#project-${target}`)).toBeInViewport();
+	});
 });

@@ -1,7 +1,7 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import chapters from './chapters.ts';
 import { imageInfo } from './images.ts';
+import order from './order.ts';
 import { projects } from './projects/index.ts';
 import type { ImageRef, Project, Visual } from './schema.ts';
 import site from './site.ts';
@@ -45,23 +45,17 @@ function chartLengths(visual: Visual | undefined): string[] {
 	return chart.points.length ? [] : ['scatter has no points'];
 }
 
-describe('chapters', () => {
-	it('reference existing projects, once each', () => {
-		const slugs = chapters.flatMap((c) => c.projects.map((p) => p.slug));
-		expect(slugs.filter((s) => !projects[s])).toEqual([]);
-		expect(new Set(slugs).size).toBe(slugs.length);
-		expect(chapters.filter((c) => c.projects.length === 0).map((c) => c.id)).toEqual([]);
+describe('order', () => {
+	it('lists existing projects, once each', () => {
+		expect(order.length).toBeGreaterThan(0);
+		expect(order.filter((s) => !projects[s])).toEqual([]);
+		expect(new Set(order).size).toBe(order.length);
 	});
 
-	it('have unique ids that are not reserved', () => {
-		const ids = [...chapters.map((c) => c.id), 'top', 'about', 'main'];
-		expect(new Set(ids).size).toBe(ids.length);
-		expect(chapters.map((c) => c.id).filter((id) => !/^[a-z][a-z0-9-]*$/.test(id))).toEqual([]);
+	it('leaves the section ids free', () => {
 		const repos = Object.values(projects).map((p) => p.repo.split('/')[1]?.toLowerCase());
-		const reserved = new Set(['hero', ...TAKEN, ...repos]);
-		expect(
-			chapters.map((c) => c.id).filter((id) => reserved.has(id) || id.startsWith('project-'))
-		).toEqual([]);
+		const taken = new Set([...TAKEN, ...repos]);
+		expect(['top', 'about', 'projects', 'main'].filter((id) => taken.has(id))).toEqual([]);
 	});
 });
 
@@ -85,8 +79,6 @@ describe.each(Object.entries(files))('%s', (path, { default: project }) => {
 		expect(project.highlights.length).toBeLessThanOrEqual(4);
 		expect(project.stats?.length ?? 0).toBeLessThanOrEqual(4);
 		expect(project.stack.length).toBeGreaterThan(0);
-		if (project.repo.split('/')[0]?.toLowerCase() !== site.owner.toLowerCase())
-			expect(project.role).toBeTruthy();
 		if (project.status !== 'complete')
 			expect(project.statusNote?.trim(), 'statusNote').toBeTruthy();
 	});
@@ -129,7 +121,7 @@ describe.each(Object.entries(files))('%s', (path, { default: project }) => {
 
 describe('site copy', () => {
 	it('is ASCII and avoids the banned words', () => {
-		for (const text of strings([site, chapters])) {
+		for (const text of strings(site)) {
 			expect(text, text).toMatch(/^[\x20-\x7E]*$/);
 			expect(text, text).not.toMatch(/\s--\s/);
 			expect(text.match(BANNED_WORDS)?.[0], text).toBeUndefined();

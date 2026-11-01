@@ -91,7 +91,7 @@
 		overflow-x: auto;
 		scrollbar-width: none;
 		inline-size: 100%;
-		justify-content: space-between;
+		justify-content: flex-end;
 	}
 
 	ul a::after {
@@ -176,7 +176,6 @@
 
 		ul {
 			inline-size: auto;
-			justify-content: flex-end;
 		}
 	}
 </style>

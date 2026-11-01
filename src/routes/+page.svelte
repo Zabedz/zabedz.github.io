@@ -1,17 +1,13 @@
 <script lang="ts">
-	import chapters from '#lib/content/chapters.ts';
 	import site from '#lib/content/site.ts';
 	import SiteNav from '#lib/components/SiteNav.svelte';
 	import About from '#lib/sections/About.svelte';
-	import Chapter from '#lib/sections/Chapter.svelte';
 	import Hero from '#lib/sections/Hero.svelte';
-	import { projects } from '#lib/content/projects/index.ts';
+	import Projects from '#lib/sections/Projects.svelte';
 
-	// Chapter renders nothing without a project, so its nav link would point nowhere.
-	const shown = chapters.filter((c) => c.projects.some((p) => projects[p.slug]));
 	const sections = [
 		{ id: 'about', label: 'About' },
-		...shown.map(({ id, label }) => ({ id, label }))
+		{ id: 'projects', label: 'Projects' }
 	];
 </script>
 
@@ -20,9 +16,7 @@
 <main id="main">
 	<Hero {site} />
 	<About {site} />
-	{#each shown as chapter (chapter.id)}
-		<Chapter {chapter} />
-	{/each}
+	<Projects />
 </main>
 <footer class="wrap">
 	<p>
