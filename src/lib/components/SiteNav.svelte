@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { jump, observeSections } from '#lib/motion/index.ts';
+	import { trackProgress } from '#lib/motion/progress.ts';
 
 	interface Props {
 		name: string;
@@ -11,10 +12,19 @@
 
 	let { name, sections, unlisted }: Props = $props();
 	let active = $state('');
+	let bar = $state<HTMLElement>();
 
-	onMount(() =>
-		observeSections([...unlisted, ...sections.map((s) => s.id)], (id) => (active = id))
-	);
+	onMount(() => {
+		const stopSections = observeSections(
+			[...unlisted, ...sections.map((s) => s.id)],
+			(id) => (active = id)
+		);
+		const stopProgress = bar ? trackProgress(bar) : undefined;
+		return () => {
+			stopSections();
+			stopProgress?.();
+		};
+	});
 </script>
 
 <header class="site-nav">
@@ -32,7 +42,7 @@
 			{/each}
 		</ul>
 	</nav>
-	<span class="progress" aria-hidden="true"></span>
+	<span class="progress" aria-hidden="true" bind:this={bar}></span>
 </header>
 
 <style>
@@ -124,7 +134,7 @@
 		}
 	}
 
-	/* Page progress along the bottom edge; hidden where scroll timelines are missing. */
+	/* Page progress along the bottom edge, filled by trackProgress. */
 	.progress {
 		position: absolute;
 		inset: auto 0 -1px;
@@ -134,12 +144,9 @@
 		scale: 0 1;
 	}
 
-	@supports (animation-timeline: scroll()) {
-		@media (prefers-reduced-motion: no-preference) {
-			.progress {
-				animation: fill linear both;
-				animation-timeline: scroll(root);
-			}
+	@media (prefers-reduced-motion: reduce) {
+		.progress {
+			visibility: hidden;
 		}
 	}
 
@@ -160,12 +167,6 @@
 
 		to {
 			mask-image: none;
-		}
-	}
-
-	@keyframes fill {
-		to {
-			scale: 1 1;
 		}
 	}
 
