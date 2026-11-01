@@ -4,7 +4,7 @@
 		label: string;
 		onclick: () => void;
 		small?: boolean;
-		/** A tall bare chevron, for the sides of the project carousel. */
+		/** A tall bare chevron, faded until hovered or focused; for the sides of the project carousel. */
 		large?: boolean;
 	}
 
@@ -15,8 +15,8 @@
 		next: 'M6 3l5 5-5 5'
 	};
 	const TALL = {
-		prev: 'M11 1.5 4.5 8l6.5 6.5',
-		next: 'M5 1.5l6.5 6.5L5 14.5'
+		prev: 'M26 6 6 28l20 22',
+		next: 'M6 6l20 22L6 50'
 	};
 </script>
 
@@ -28,7 +28,7 @@
 	aria-label={label}
 	{onclick}
 >
-	<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+	<svg viewBox={large ? '0 0 32 56' : '0 0 16 16'} aria-hidden="true" focusable="false">
 		<path d={(large ? TALL : PATHS)[direction]} />
 	</svg>
 </button>
@@ -56,15 +56,22 @@
 	}
 
 	.large {
-		inline-size: 3rem;
-		block-size: 4.5rem;
+		inline-size: 4rem;
+		block-size: 6rem;
 		border: 0;
 		border-radius: var(--radius);
 		background: none;
-		color: var(--ink-2);
+		color: var(--ink);
+		opacity: 0.6;
 		transition:
-			color var(--dur-fast) var(--ease-out),
+			color var(--dur) var(--ease-out),
+			opacity var(--dur) var(--ease-out),
 			scale var(--dur-fast) var(--ease-out);
+	}
+
+	.large:focus-visible {
+		color: var(--accent);
+		opacity: 1;
 	}
 
 	svg {
@@ -78,9 +85,14 @@
 	}
 
 	.large svg {
-		inline-size: 2.75rem;
-		block-size: 2.75rem;
-		stroke-width: 1.1;
+		inline-size: 2.5rem;
+		block-size: 4.375rem;
+		stroke-width: 3.5;
+	}
+
+	.large:focus-visible svg {
+		stroke-width: 5;
+		scale: 1.15;
 	}
 
 	@media (hover: hover) {
@@ -90,15 +102,26 @@
 
 		.large:hover {
 			color: var(--accent);
+			opacity: 1;
+		}
+
+		.large:hover svg {
+			stroke-width: 5;
+			scale: 1.15;
+		}
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		svg {
+			transition:
+				translate var(--dur-fast) var(--ease-out),
+				scale var(--dur) var(--ease-spring),
+				stroke-width var(--dur) var(--ease-out);
 		}
 	}
 
 	/* The chevron leans the way the button moves. */
 	@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-		svg {
-			transition: translate var(--dur-fast) var(--ease-out);
-		}
-
 		.prev:hover svg {
 			translate: -2px 0;
 		}

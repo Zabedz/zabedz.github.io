@@ -14,6 +14,7 @@
 
 	let bar = $state<HTMLElement>();
 	let track = $state<HTMLElement>();
+	let stage = $state<HTMLElement>();
 	let index = $state<HTMLElement>();
 	let active = $state(0);
 	let announcement = $state('');
@@ -45,9 +46,26 @@
 			{ rootMargin: '0px 0px -30% 0px' }
 		);
 		io.observe(track);
+
+		// The side arrows center on the shortest slide, so they hold still as the track resizes.
+		const slides = [...track.children] as HTMLElement[];
+		let railFrame = 0;
+		const fitRails = () => {
+			railFrame = 0;
+			const shortest = Math.min(...slides.map((slide) => slide.offsetHeight));
+			if (shortest > 0) stage?.style.setProperty('--rail-h', `${shortest}px`);
+		};
+		// Deferred a frame, as in carousel.ts, to stay clear of WebKit's ResizeObserver loop error.
+		const sizes = new ResizeObserver(() => {
+			railFrame ||= requestAnimationFrame(fitRails);
+		});
+		for (const slide of slides) sizes.observe(slide);
+
 		return () => {
 			nav?.destroy();
 			io.disconnect();
+			cancelAnimationFrame(railFrame);
+			sizes.disconnect();
 		};
 	});
 
@@ -60,12 +78,15 @@
 		});
 	}
 
-	/** Runs a move, then brings the slide's top back under the bar if the reader had scrolled down. */
-	function move(change: (nav: Carousel) => void) {
+	/**
+	 * Runs a move. With `align`, brings the slide's top back under the bar if the reader had
+	 * scrolled down; the side arrows skip it so they stay under the pointer.
+	 */
+	function move(change: (nav: Carousel) => void, align = true) {
 		if (!nav || !track || !bar) return;
 		change(nav);
 		const gap = track.getBoundingClientRect().top - bar.getBoundingClientRect().bottom;
-		if (gap < 0) {
+		if (align && gap < 0) {
 			window.scrollBy({ top: gap, behavior: prefersReducedMotion.current ? 'instant' : 'smooth' });
 		}
 	}
@@ -78,9 +99,9 @@
 		move((n) => n.go(i));
 	}
 
-	function onkeydown(event: KeyboardEvent) {
-		if (event.key === 'ArrowLeft') move((n) => n.step(-1));
-		else if (event.key === 'ArrowRight') move((n) => n.step(1));
+	function onkeydown(event: KeyboardEvent, align = true) {
+		if (event.key === 'ArrowLeft') move((n) => n.step(-1), align);
+		else if (event.key === 'ArrowRight') move((n) => n.step(1), align);
 		else return;
 		event.preventDefault();
 		// Focus follows the current name, which centerChip has scrolled into view.
@@ -96,7 +117,7 @@
 		{direction}
 		{large}
 		label="{direction === 'prev' ? 'Previous' : 'Next'} project: {name(at(active + by))}"
-		onclick={() => move((n) => n.step(by))}
+		onclick={() => move((n) => n.step(by), !large)}
 	/>
 {/snippet}
 
@@ -135,9 +156,14 @@
 		</div>
 	</div>
 
-	<div class="stage">
+	<div class="stage" bind:this={stage}>
 		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-		<div class="rails" role="group" aria-label="Previous and next project" {onkeydown}>
+		<div
+			class="rails"
+			role="group"
+			aria-label="Previous and next project"
+			onkeydown={(event) => onkeydown(event, false)}
+		>
 			<div class="rail prev">{@render arrow('prev', true)}</div>
 			<div class="rail next">{@render arrow('next', true)}</div>
 		</div>
@@ -155,7 +181,7 @@
 	.projects {
 		--bar-h: 3.75rem;
 		/* Width of the large StepButton. */
-		--arrow: 3rem;
+		--arrow: 4rem;
 		/* From 48rem each arrow sits in a column beside the slides, which narrow to make room. */
 		--rail: calc(var(--arrow) + 2 * var(--space-2));
 		--inner: min(100% - 2 * var(--rail), var(--page));
@@ -311,15 +337,15 @@
 		pointer-events: none;
 	}
 
-	/* Starts at the slide's top padding, so the arrow sits level with the project title. */
+	/* As tall as the shortest slide (--rail-h, set on mount), with the arrow at its middle. */
 	.rail {
 		position: absolute;
-		inset-block: 0;
+		inset-block-start: 0;
 		display: flex;
 		justify-content: center;
-		align-items: flex-start;
+		align-items: center;
 		inline-size: var(--rail);
-		padding-block-start: var(--space-4);
+		block-size: var(--rail-h, 100%);
 	}
 
 	.rail.prev {
