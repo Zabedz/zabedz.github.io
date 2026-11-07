@@ -2,6 +2,7 @@
 export default [
 	'pv-bess',
 	'frontier',
+	'inbox-triage',
 	'dissertation',
 	'authledger',
 	'fiscal-till',

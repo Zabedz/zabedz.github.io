@@ -158,6 +158,42 @@
 			1600
 		]
 	},
+	"inbox-triage/error-bound-dark": {
+		"width": 1600,
+		"height": 1110,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
+	"inbox-triage/error-bound": {
+		"width": 1600,
+		"height": 1110,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
+	"inbox-triage/where-jev-decides-dark": {
+		"width": 1600,
+		"height": 1290,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
+	"inbox-triage/where-jev-decides": {
+		"width": 1600,
+		"height": 1290,
+		"widths": [
+			480,
+			800,
+			1600
+		]
+	},
 	"pv-bess/architecture": {
 		"width": 1600,
 		"height": 862,
